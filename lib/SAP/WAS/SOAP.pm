@@ -35,7 +35,7 @@ my $_out = "";
 my $_cell = "";
 my $_tagre = "";
 
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 # Preloaded methods go here.
 
@@ -330,7 +330,7 @@ sub soaprfc {
 
 =head1 NAME
 
-SAP::WAS::SOAP - Perl extension for performing RFC Function calls against an SAP R/3 using the Business Connector System.  Please refer to the README file found with this distribution.
+SAP::WAS::SOAP - SOAP encoded RFC calls against SAP R/3 / Web Application Server (WAS)
 
 =head1 SYNOPSIS
 
