@@ -1,0 +1,9 @@
+Changes
+README
+MANIFEST
+Makefile.PL
+lib/SAP/WAS/SOAP.pm
+lib/SAP/WAS/Iface.pm
+test.pl
+examples/examples.pl
+examples/report.pl
