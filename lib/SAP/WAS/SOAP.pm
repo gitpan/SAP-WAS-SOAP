@@ -5,6 +5,8 @@ use strict;
 
 use SAP::WAS::Iface;
 use SOAP::Lite;
+
+
 my $sr = "";
 my $namespace = "rfc:";
 my $muri = "urn:sap-com:document:sap:rfc:functions";
@@ -35,7 +37,7 @@ my $_out = "";
 my $_cell = "";
 my $_tagre = "";
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 # Preloaded methods go here.
 
@@ -49,8 +51,8 @@ sub new {
   };
 
   die "SOAP URL not supplied !" if ! exists $self->{URL};
-#  die "SAP WAS USERID not supplied !" if ! exists $self->{USERID};
-#  die "SAP WAS Password not supplied (PASSWD) !" if ! exists $self->{PASSWD};
+  die "SAP WAS USERID not supplied !" if ! exists $self->{USERID};
+  die "SAP WAS Password not supplied (PASSWD) !" if ! exists $self->{PASSWD};
 
 # Validate parameters
   map { delete $self->{$_} if ! exists $VALID->{$_} } keys %{$self};
@@ -61,6 +63,14 @@ sub new {
 #                             user   => $self->{USERID},
 #			     password => $self->{PASSWD}
 #			     );
+
+# Fix credentials as supplied by Christian Wippermann
+eval '
+sub SOAP::Transport::HTTP::Client::get_basic_credentials {
+	 #warn "credentials $self->{USERID} => $self->{PASSWD} \n";
+   return "$self->{USERID}" => "$self->{PASSWD}";
+}
+';
 # create the object and return it
   bless ($self, $class);
   return $self;
@@ -68,17 +78,19 @@ sub new {
 
 
 # method to return a structure object of SAP::Structure type
-sub structure{
+sub structure {
 
   my $self = shift;
   my $struct = shift;
   #my $info = $self->sapinfo();
 
-  my @parms = ( name( 'TABNAME'=> $struct ) );
+  my @parms = (name('TABNAME'=> $struct), name('FIELDS'));
   my $methname = "RFC_GET_STRUCTURE_DEFINITION_P";
-  my $meth =  'rfc:'.$methname;
+  #my $meth =  'rfc:'.$methname;
+  my $meth =  $methname;
   my $element =  $methname.'.Response';
   #$sr = $s->serializer->autotype(0)->readable(1)->method( $namespace.$methname => @parms );
+  $sr = $s->serializer->autotype(0)->readable(1)->method( $methname => @parms );
   #print "$methname SOAP: $sr\n";
   my $som =  $s->uri($muri)->proxy($self->{'URL'})->$meth( @parms );
   my @res = $som->valueof("//Envelope/Body/$element/FIELDS/item");
@@ -104,12 +116,14 @@ sub Iface{
   die "No RFC name supplied to lookup " if ! $rfcname;
 
   my $info = {};
-  my @parms = ( name( 'FUNCNAME'=> $rfcname ) );
+  my @parms = (name( 'FUNCNAME' => $rfcname), name('PARAMS_P'));
   my $methname = "RFC_GET_FUNCTION_INTERFACE_P";
-  my $meth =  'rfc:'.$methname;
+  #my $meth =  'rfc:'.$methname;
+  my $meth =  $methname;
   my $element =  $methname.'.Response';
-  #$sr = $s->serializer->autotype(0)->readable(1)->method( $namespace.$methname => @parms );
   #print "$methname SOAP: $sr\n";
+  #$sr = $s->serializer->autotype(0)->readable(1)->method( $namespace.$methname => @parms );
+  $sr = $s->serializer->autotype(0)->readable(1)->method( $methname => @parms );
   my $som =  $s->uri($muri)->proxy($self->{'URL'})->$meth( @parms );
   my @res = $som->valueof("//Envelope/Body/$element/PARAMS_P/item");
 #  print STDERR "//Envelope/Body/$element/PARAMS_P \n".Dumper(\@res);
@@ -264,7 +278,8 @@ sub soaprfc {
 
 
   my $methname = $iface->name();
-  my $meth =  'rfc:'.$methname;
+  #my $meth =  'rfc:'.$methname;
+  my $meth =  $methname;
   my $element =  $methname.'.Response';
 
   #my @parms = ( name( 'FUNCNAME'=> $rfcname ) );
@@ -293,6 +308,7 @@ sub soaprfc {
   }
 
   #$sr = $s->serializer->autotype(0)->readable(1)->method( $namespace.$methname => @parms );
+  $sr = $s->serializer->autotype(0)->readable(1)->method( $methname => @parms );
   #print "$methname SOAP: $sr\n";
 
 

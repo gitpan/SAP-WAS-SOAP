@@ -1,14 +1,16 @@
 #!/usr/bin/perl
 use strict;
 use lib '../lib';
+use lib './lib';
 use SAP::WAS::SOAP;
+#use SOAP::Lite "trace";
 use Data::Dumper;
-
-my $url = 'http://localhost:8080/sap/bc/soap/rfc';
+#my $url = 'http://developer:developer\@seahorse.local.net:8000/sap/bc/soap/rfc';
+my $url = 'http://seahorse.local.net:8000/sap/bc/soap/rfc';
 my $rfcname = 'RFC_READ_REPORT';
 my $rfcname2 = 'RFC_READ_TABLE';
 
-my $sapsoap = new SAP::WAS::SOAP( URL => $url );
+my $sapsoap = new SAP::WAS::SOAP( URL => $url, USERID => 'developer', PASSWD => 'developer' );
 
 my $i = $sapsoap->Iface( $rfcname );
 

@@ -7,3 +7,4 @@ lib/SAP/WAS/Iface.pm
 test.pl
 examples/examples.pl
 examples/report.pl
+META.yml                                 Module meta-data (added by MakeMaker)
